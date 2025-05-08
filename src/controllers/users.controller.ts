@@ -12,14 +12,8 @@ function validateEmail(email) {
 }
 
 const register = async (req: Request, res: Response, next: any) => {
-  const {
-    firstName,
-    lastName,
-    email,
-    password,
-    phoneNumber,
-    address,
-  } = req.body;
+  const { firstName, lastName, email, password, phoneNumber, address } =
+    req.body;
 
   let isEmailAvailable: User | null;
 
@@ -131,9 +125,7 @@ const updateUserDetails = async (req: Request, res: Response) => {
       user.address = address;
       await datasource.getRepository(User).save(user);
     } else {
-      return res
-        .status(500)
-        .json("errro trying to update user details");
+      return res.status(500).json("errro trying to update user details");
     }
     return res.json(user);
   } catch (err) {
@@ -141,7 +133,7 @@ const updateUserDetails = async (req: Request, res: Response) => {
   }
 };
 const registerWithGoogle = async (req: Request, res: Response) => {
-  const { email,firstName,lastName,isGoogleUser } = req.body;
+  const { email, firstName, lastName, isGoogleUser } = req.body;
 
   let isEmailAvailable: User | null;
 
@@ -149,12 +141,12 @@ const registerWithGoogle = async (req: Request, res: Response) => {
     where: { email: email },
   });
 
-  if(isEmailAvailable) {
+  if (isEmailAvailable) {
     return res.json(isEmailAvailable);
   }
 
   let errors: any = {};
-    if (isEmailAvailable) errors.email = "Email already exists";
+  if (isEmailAvailable) errors.email = "Email already exists";
 
   if (validateEmail(email) === false) {
     errors.email = "Please pick a valid email!";
@@ -166,7 +158,7 @@ const registerWithGoogle = async (req: Request, res: Response) => {
 
   try {
     const randomPassword = Math.random().toString(36).substring(7);
-    
+
     const user = User.create({
       firstName: firstName,
       lastName: lastName,
@@ -185,13 +177,21 @@ const registerWithGoogle = async (req: Request, res: Response) => {
 
     user.cartId = cart.id;
     return res.json(user);
-
   } catch (err) {
     console.error("Error while trying to register with Google!!");
     return res.status(500).json(err);
   }
 };
 
+const getAllUsers = async (_req: Request, res: Response) => {
+  try {
+    const users = await User.find();
+    return res.json(users);
+  } catch (err) {
+    console.error("Failed to get users");
+    return res.status(500).json({ message: "Server error" });
+  }
+};
 
 module.exports = {
   register,
@@ -199,4 +199,5 @@ module.exports = {
   getUserDetails,
   updateUserDetails,
   registerWithGoogle,
+  getAllUsers,
 };

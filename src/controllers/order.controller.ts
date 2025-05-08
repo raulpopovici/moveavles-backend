@@ -10,14 +10,11 @@ const createOrder = async (req: Request, res: Response) => {
   const { firstName, lastName, totalSum, address, phoneNumber, userId } =
     req.body;
 
- 
-
   try {
     let user: User | null;
     user = await User.findOne({
       where: { id: userId },
     });
-    
 
     let order;
     order = Order.create({
@@ -44,7 +41,7 @@ const createOrder = async (req: Request, res: Response) => {
       cartP = await datasource
         .createQueryBuilder()
         .update(CartProduct)
-        .set({ordered:true})
+        .set({ ordered: true })
         .where("cartId = :cartId", {
           cartId: cart?.id,
         })
@@ -60,16 +57,22 @@ const createOrder = async (req: Request, res: Response) => {
 
 const getOrders = async (req: Request, res: Response) => {
   const { userId } = req.query;
-  const userIdString=String(userId);
+
   try {
     let orders;
-    console.log('user id', userIdString);
-    orders = await Order.find({
-      where: { user: {id: userIdString } },
-    });
 
-    if (orders.length === 0) {
-      return res.status(404).json({ error: 'No orders found for the user' });
+    if (userId) {
+      const userIdString = String(userId);
+      orders = await Order.find({
+        where: { user: { id: userIdString } },
+      });
+    } else {
+      // 🟢 Fetch all orders if no userId is specified
+      orders = await Order.find();
+    }
+
+    if (!orders || orders.length === 0) {
+      return res.status(404).json({ error: "No orders found" });
     }
 
     return res.json(orders);
