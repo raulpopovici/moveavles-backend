@@ -1,11 +1,11 @@
 import express from "express";
 import { Request, Response } from "express";
-import { datasource } from "../index";
 import { Review } from "../entities/Review";
 import { User } from "../entities/User";
 import { Product } from "../entities/Product";
 import { CartProduct } from "../entities/CartProduct";
 import { Cart } from "../entities/Cart";
+import { datasource } from "../config/db.config";
 
 const giveReview = async (req: Request, res: Response) => {
   const { productId, userId, firstName, rating, comment } = req.body;

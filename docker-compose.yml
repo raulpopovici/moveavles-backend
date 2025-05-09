@@ -1,0 +1,43 @@
+version: "3.9"
+
+services:
+  postgres-eu:
+    image: postgres:15
+    container_name: postgres-eu
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: moveables_eu
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_eu_data:/var/lib/postgresql/data
+
+  postgres-us:
+    image: postgres:15
+    container_name: postgres-us
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: moveables_us
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_us_data:/var/lib/postgresql/data
+
+  postgres-asia:
+    image: postgres:15
+    container_name: postgres-asia
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: moveables_asia
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_asia_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_eu_data:
+  postgres_us_data:
+  postgres_asia_data:

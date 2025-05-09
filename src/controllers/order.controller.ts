@@ -4,7 +4,7 @@ import { Request, Response } from "express";
 import { User } from "../entities/User";
 import { Order } from "../entities/Order";
 import { Cart } from "../entities/Cart";
-import { datasource } from "../index";
+import { datasource } from "../config/db.config";
 
 const createOrder = async (req: Request, res: Response) => {
   const { firstName, lastName, totalSum, address, phoneNumber, userId } =

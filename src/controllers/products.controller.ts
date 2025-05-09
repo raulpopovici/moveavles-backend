@@ -1,10 +1,10 @@
 import express from "express";
 import { Request, Response } from "express";
 import { Product } from "../entities/Product";
-import { datasource } from "../index";
+import { datasource } from "../config/db.config";
 
 const createProduct = async (req: Request, res: Response) => {
-  const { productType, price, productName, quantity, image,color } = req.body;
+  const { productType, price, productName, quantity, image, color } = req.body;
 
   let errors: any = {};
 
@@ -65,7 +65,6 @@ const getAllProducts = async (req: Request, res: Response) => {
 };
 
 const getAllInStockProducts = async (req: Request, res: Response) => {
-
   try {
     const { nrOfProducts, pageNumber } = req.query;
     let products;
@@ -97,54 +96,63 @@ const getRandomProducts = async (req: Request, res: Response) => {
       .getMany();
     return res.status(200).json(products);
   } catch (error) {
-    return res.status(400).json({ error: "Ahh...Something went wrong at getting products" });
+    return res
+      .status(400)
+      .json({ error: "Ahh...Something went wrong at getting products" });
   }
 };
 
 const getSortedProducts = async (req: Request, res: Response) => {
   try {
-    const { sortBy, sortOrder,nrOfProducts, pageNumber,productType,color,material } = req.query;
+    const {
+      sortBy,
+      sortOrder,
+      nrOfProducts,
+      pageNumber,
+      productType,
+      color,
+      material,
+    } = req.query;
     const skippedProducts = (Number(pageNumber) - 1) * Number(nrOfProducts);
 
-    if(sortOrder==='desc'&&sortBy==='name') {
-
-    const productsQueryBuilder = datasource
-      .getRepository(Product)
-      .createQueryBuilder('product')
-      .orderBy('product.productName', 'DESC')
-      .skip(skippedProducts)
-      .take(Number(nrOfProducts));
-
-    if (productType){
-      productsQueryBuilder.where("product.productType = :productType", {
-        productType: productType,
-      });
-    }
-    console.log(color);
-    if (color) {
-      productsQueryBuilder.andWhere("product.color = :color", {
-        color: color,
-      });
-    }
-    if(material) {
-      productsQueryBuilder.andWhere("product.material = :material", {
-        material: material,
-      });
-    }
-
-    const products = await productsQueryBuilder.getMany();
-    return res.status(200).json(products);
-    }
-
-    if(sortOrder==='asc'&&sortBy==='name'){
+    if (sortOrder === "desc" && sortBy === "name") {
       const productsQueryBuilder = datasource
         .getRepository(Product)
-        .createQueryBuilder('product')
-        .orderBy('product.productName', 'ASC')
+        .createQueryBuilder("product")
+        .orderBy("product.productName", "DESC")
         .skip(skippedProducts)
         .take(Number(nrOfProducts));
 
-      if (productType){
+      if (productType) {
+        productsQueryBuilder.where("product.productType = :productType", {
+          productType: productType,
+        });
+      }
+      console.log(color);
+      if (color) {
+        productsQueryBuilder.andWhere("product.color = :color", {
+          color: color,
+        });
+      }
+      if (material) {
+        productsQueryBuilder.andWhere("product.material = :material", {
+          material: material,
+        });
+      }
+
+      const products = await productsQueryBuilder.getMany();
+      return res.status(200).json(products);
+    }
+
+    if (sortOrder === "asc" && sortBy === "name") {
+      const productsQueryBuilder = datasource
+        .getRepository(Product)
+        .createQueryBuilder("product")
+        .orderBy("product.productName", "ASC")
+        .skip(skippedProducts)
+        .take(Number(nrOfProducts));
+
+      if (productType) {
         productsQueryBuilder.where("product.productType = :productType", {
           productType: productType,
         });
@@ -155,37 +163,37 @@ const getSortedProducts = async (req: Request, res: Response) => {
           color: color,
         });
       }
-      
-      if(material) {
+
+      if (material) {
         productsQueryBuilder.andWhere("product.material = :material", {
           material: material,
         });
       }
-    const products = await productsQueryBuilder.getMany();
-    return res.status(200).json(products);
-
+      const products = await productsQueryBuilder.getMany();
+      return res.status(200).json(products);
     }
-    return res.status(400).json({ error: 'Invalid sortBy or sortOrder value' });
+    return res.status(400).json({ error: "Invalid sortBy or sortOrder value" });
   } catch (error) {
-    return res.status(400).json({ error: 'Something went wrong for sorting' });
+    return res.status(400).json({ error: "Something went wrong for sorting" });
   }
 };
 
-
-
 const getFilteredProducts = async (req: Request, res: Response) => {
-  try{
-    const { price, color, material, nrOfProducts, pageNumber,productType } = req.query as { 
-      price?: number, 
-      color?: string, 
-      material?: string, 
-      nrOfProducts?: string,
-      pageNumber?: string,
-      productType?: string,
-    };
+  try {
+    const { price, color, material, nrOfProducts, pageNumber, productType } =
+      req.query as {
+        price?: number;
+        color?: string;
+        material?: string;
+        nrOfProducts?: string;
+        pageNumber?: string;
+        productType?: string;
+      };
 
     const skippedProducts = (Number(pageNumber) - 1) * Number(nrOfProducts);
-    const queryBuilder = await datasource.getRepository(Product).createQueryBuilder("product");
+    const queryBuilder = await datasource
+      .getRepository(Product)
+      .createQueryBuilder("product");
 
     if (price) {
       queryBuilder.where("product.price <= :price", { price });
@@ -202,7 +210,9 @@ const getFilteredProducts = async (req: Request, res: Response) => {
     }
 
     if (productType) {
-      queryBuilder.andWhere("product.productType = :productType", { productType: productType });
+      queryBuilder.andWhere("product.productType = :productType", {
+        productType: productType,
+      });
     }
 
     if (nrOfProducts && pageNumber) {
@@ -212,10 +222,12 @@ const getFilteredProducts = async (req: Request, res: Response) => {
     const products = await queryBuilder.getMany();
 
     return res.json(products);
-  }catch(error){
-    return res.status(400).json({ error: "Ahh...Something went wrong with filtering the products" });
+  } catch (error) {
+    return res.status(400).json({
+      error: "Ahh...Something went wrong with filtering the products",
+    });
   }
-}
+};
 
 module.exports = {
   createProduct,

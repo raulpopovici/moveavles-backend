@@ -2,8 +2,8 @@ import { Request, Response } from "express";
 import { User } from "../entities/User";
 import bcrypt from "bcrypt";
 import { isEmpty } from "class-validator";
-import { datasource } from "../index";
 import { Cart } from "../entities/Cart";
+import { datasource } from "../config/db.config";
 
 function validateEmail(email) {
   const re =
