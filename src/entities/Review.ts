@@ -1,14 +1,13 @@
 import {
-    Entity,
-    BaseEntity,
-    Column,
-    PrimaryGeneratedColumn,
-    ManyToOne,
-    JoinColumn
-  } from "typeorm";
+  Entity,
+  BaseEntity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  JoinColumn,
+} from "typeorm";
 import { Product } from "./Product";
 import { User } from "./User";
-
 
 @Entity("reviews")
 export class Review extends BaseEntity {
@@ -33,7 +32,9 @@ export class Review extends BaseEntity {
   @JoinColumn({ name: "userId" })
   user: Promise<User>;
 
-@ManyToOne(() => Product, (product) => product)
-@JoinColumn({ name: "productId" })
-product: Promise<Product>;
+  @ManyToOne(() => Product, (product) => product, {
+    onDelete: "CASCADE",
+  })
+  @JoinColumn({ name: "productId" })
+  product: Promise<Product>;
 }

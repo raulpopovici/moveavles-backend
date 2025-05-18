@@ -22,7 +22,9 @@ export class CartProduct extends BaseEntity {
   @Column()
   cartId: string;
 
-  @ManyToOne(() => Product, (product) => product.cartConnect)
+  @ManyToOne(() => Product, (product) => product.cartConnect, {
+    onDelete: "CASCADE",
+  })
   @JoinColumn({ name: "productId" })
   product: Promise<Product>;
 

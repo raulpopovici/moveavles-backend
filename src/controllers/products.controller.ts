@@ -229,6 +229,56 @@ const getFilteredProducts = async (req: Request, res: Response) => {
   }
 };
 
+const updateProduct = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { productName, productType, price, quantity, image, color, material } =
+    req.body;
+
+  try {
+    const product = await Product.findOneBy({ id });
+
+    if (!product) {
+      return res.status(404).json({ error: "Product not found" });
+    }
+
+    // Update fields
+    product.productName = productName ?? product.productName;
+    product.productType = productType ?? product.productType;
+    product.price = price ?? product.price;
+    product.quantity = quantity ?? product.quantity;
+    product.image = image ?? product.image;
+    product.color = color ?? product.color;
+    product.material = material ?? product.material;
+
+    await product.save();
+
+    return res.status(200).json(product);
+  } catch (error) {
+    console.error("Error updating product:", error);
+    return res.status(500).json({ error: "Failed to update product" });
+  }
+};
+
+const deleteProduct = async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  try {
+    console.log("Deleting product with ID:", id);
+    // Find the product by ID
+    const product = await Product.findOneBy({ id });
+
+    if (!product) {
+      return res.status(404).json({ error: "Product not found" });
+    }
+
+    await Product.remove(product);
+    return res.status(200).json({ message: "Product deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting product:", error);
+    return res.status(500).json({ error: "Failed to delete product" });
+  }
+};
+
 module.exports = {
   createProduct,
   getAllProducts,
@@ -236,4 +286,6 @@ module.exports = {
   getRandomProducts,
   getFilteredProducts,
   getSortedProducts,
+  updateProduct,
+  deleteProduct,
 };
