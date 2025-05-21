@@ -2,9 +2,11 @@ import express from "express";
 import { Request, Response } from "express";
 import { Product } from "../entities/Product";
 import { datasource } from "../config/db.config";
+import axios from "axios";
 
 const createProduct = async (req: Request, res: Response) => {
-  const { productType, price, productName, quantity, image, color } = req.body;
+  const { productType, price, productName, quantity, image, color, material } =
+    req.body;
 
   let errors: any = {};
 
@@ -24,6 +26,7 @@ const createProduct = async (req: Request, res: Response) => {
       quantity: quantity,
       image: image,
       color: color,
+      material: material,
     });
     return res.json(await product.save());
   } catch (err) {
@@ -279,6 +282,35 @@ const deleteProduct = async (req: Request, res: Response) => {
   }
 };
 
+export const syncFromMaster = async (req: Request, res: Response) => {
+  try {
+    const { data: products } = await axios.get(
+      "http://localhost:8080/api/getAllProducts",
+      {
+        params: { pageNumber: 1, nrOfProducts: 10000 }, // adjust if needed
+      }
+    );
+
+    const repo = datasource.getRepository(Product);
+    let inserted = 0;
+
+    for (const product of products) {
+      const existing = await repo.findOneBy({ id: product.id });
+      if (!existing) {
+        await repo.save(product);
+        inserted++;
+      }
+    }
+
+    return res
+      .status(200)
+      .json({ message: `Sync complete. Added ${inserted} new product(s).` });
+  } catch (error) {
+    console.error("Sync from master failed", error);
+    return res.status(500).json({ error: "Sync failed" });
+  }
+};
+
 module.exports = {
   createProduct,
   getAllProducts,
@@ -288,4 +320,5 @@ module.exports = {
   getSortedProducts,
   updateProduct,
   deleteProduct,
+  syncFromMaster,
 };

@@ -22,4 +22,6 @@ router.put("/api/updateProduct/:id", productsController.updateProduct);
 
 router.delete("/api/deleteProduct/:id", productsController.deleteProduct);
 
+router.post("/api/syncFromMaster", productsController.syncFromMaster);
+
 export { router as productRouter };
